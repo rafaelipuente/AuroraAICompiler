@@ -1,0 +1,77 @@
+# Build directories
+/build/
+/cmake-build-*/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# C++ build artifacts
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+
+# Generated files
+*.inc
+*.h.inc
+*.cpp.inc
+*.gen
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Compiled models
+*.aurora
+*.onnx.compiled
+*.pt.compiled
+
+# ONNX models (these can be large, so often excluded from git)
+# Uncomment if you want to exclude ONNX models
+# *.onnx
+
+# Test artifacts
+test/tmp/
+benchmarks/results/
+
+# Documentation build
+docs/_build/
