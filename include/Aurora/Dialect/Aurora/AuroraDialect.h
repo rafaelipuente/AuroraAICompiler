@@ -1,23 +1,26 @@
-#ifndef AURORA_DIALECT_AURORA_DIALECT_H
-#define AURORA_DIALECT_AURORA_DIALECT_H
+//===- AuroraDialect.h - Aurora dialect declaration --------------*- C++ -*-===//
+//
+// This file contains the declaration of the Aurora dialect.
+//
+//===----------------------------------------------------------------------===//
+
+#ifndef AURORA_DIALECT_H
+#define AURORA_DIALECT_H
 
 #include "mlir/IR/Dialect.h"
-#include "mlir/IR/OpDefinition.h"
-#include "mlir/Interfaces/SideEffectInterfaces.h"
+#include "mlir/IR/BuiltinOps.h"
 
 namespace mlir {
 namespace aurora {
 
-class AuroraDialect : public Dialect {
-public:
-  explicit AuroraDialect(MLIRContext *context);
-  
-  static StringRef getDialectNamespace() { return "aurora"; }
-  
-  void initialize();
-};
+// Forward declaration - full class will be defined by TableGen
+class AuroraDialect;
 
 } // namespace aurora
 } // namespace mlir
 
-#endif // AURORA_DIALECT_AURORA_DIALECT_H
+// Include the generated dialect declarations
+#define GET_DIALECT_DECLS
+#include "Aurora/Dialect/Aurora/AuroraDialect.h.inc"
+
+#endif // AURORA_DIALECT_H

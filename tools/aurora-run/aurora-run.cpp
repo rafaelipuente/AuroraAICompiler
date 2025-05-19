@@ -8,7 +8,7 @@
 #include <chrono>
 #include <iomanip>
 
-using namespace aurora::runtime;
+using namespace mlir::aurora::runtime;
 using namespace llvm;
 
 // Command line options
@@ -80,7 +80,7 @@ bool writeOutputData(const std::string &filename, const std::vector<float> &data
       llvm::outs() << "  First 10 values: ";
       for (size_t i = 0; i < std::min(size_t(10), size); ++i) {
         if (i > 0) llvm::outs() << ", ";
-        llvm::outs() << std::fixed << std::setprecision(4) << data[i];
+        llvm::outs() << data[i];
       }
       llvm::outs() << "\n";
       
@@ -98,7 +98,7 @@ bool writeOutputData(const std::string &filename, const std::vector<float> &data
     } else {
       // Print all values for small tensors
       for (size_t i = 0; i < size; ++i) {
-        llvm::outs() << std::fixed << std::setprecision(4) << data[i] << " ";
+        llvm::outs() << data[i] << " ";
       }
       llvm::outs() << "\n";
     }

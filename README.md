@@ -90,6 +90,35 @@ make install
 
 ---
 
+## 📊 Visual Debugging with Mermaid
+
+AuroraAICompiler can generate operation graphs using Mermaid and render them as PNG diagrams for inspection.
+
+Here's an example output from the compiler when run with `--dump-mermaid` and `--mermaid-png`:
+
+![Aurora Compiler Mermaid Diagram](docs/test_model_diagram.png)
+
+You can use:
+```bash
+./bin/aurora-compile test_model.mlir -o output.mlir --dump-mermaid --mermaid-png
+```
+to automatically generate this kind of visual output for any MLIR model.
+
+### Mermaid Source
+
+The raw Mermaid diagram source looks like this:
+
+```mermaid
+graph TD
+  aurora.matmul["aurora.matmul\ntensor<8x8xf32>"]
+  aurora.relu["aurora.relu\ntensor<8x8xf32>"]
+  main_func["main\nfunc.func"]
+
+  aurora.matmul --> aurora.relu
+```
+
+---
+
 ## Project Structure
 
 * `include/` – C++ header files (Dialects, Passes, Runtime)

@@ -1,8 +1,9 @@
 add_mlir_library(AuroraTransforms
   Fusion.cpp
+  MatMulBiasFusion.cpp
 
   DEPENDS
-  AuroraTransformsPassIncGen
+  AuroraOpsIncGen
 
   LINK_LIBS PUBLIC
   MLIRIR

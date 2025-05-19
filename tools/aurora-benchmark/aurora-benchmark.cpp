@@ -9,7 +9,7 @@
 #include <vector>
 #include <memory>
 
-using namespace aurora::runtime;
+using namespace mlir::aurora::runtime;
 using namespace llvm;
 
 // Command line options
@@ -216,18 +216,14 @@ int main(int argc, char **argv) {
   llvm::outs() << "\nBenchmark Results:\n";
   llvm::outs() << "-------------------\n";
   llvm::outs() << "Aurora (" << auroraModelFilename << "):\n";
-  llvm::outs() << "  Average time: " << std::fixed << std::setprecision(3)
-               << auroraTimeMs << " ms\n";
-  llvm::outs() << "  Throughput: " << std::fixed << std::setprecision(2)
-               << auroraResults["throughput_fps"] << " FPS\n";
+  llvm::outs() << "  Average time: " << auroraTimeMs << " ms\n";
+  llvm::outs() << "  Throughput: " << auroraResults["throughput_fps"] << " FPS\n";
   llvm::outs() << "\n";
   llvm::outs() << baselineType << " (" << baselineModelFilename << "):\n";
-  llvm::outs() << "  Average time: " << std::fixed << std::setprecision(3)
-               << baselineTimeMs << " ms\n";
-  llvm::outs() << "  Throughput: " << std::fixed << std::setprecision(2)
-               << baselineResults["throughput_fps"] << " FPS\n";
+  llvm::outs() << "  Average time: " << baselineTimeMs << " ms\n";
+  llvm::outs() << "  Throughput: " << baselineResults["throughput_fps"] << " FPS\n";
   llvm::outs() << "\n";
-  llvm::outs() << "Speedup: " << std::fixed << std::setprecision(2) << speedup << "x\n";
+  llvm::outs() << "Speedup: " << speedup << "x\n";
   
   // Write results to file if specified
   if (outputFilename != "-") {

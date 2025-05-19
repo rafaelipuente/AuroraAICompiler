@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <stdexcept>
 
+namespace mlir {
 namespace aurora {
 namespace runtime {
 
@@ -11,7 +12,9 @@ namespace runtime {
 // AuroraTensor Implementation
 //===----------------------------------------------------------------------===//
 
-AuroraTensor::AuroraTensor(const std::vector<int64_t> &shape, const std::string &dtype)
+AuroraTensor::~AuroraTensor() = default;
+
+mlir::aurora::runtime::AuroraTensor::AuroraTensor(const std::vector<int64_t> &shape, const std::string &dtype)
     : shape_(shape), dtype_(dtype) {
   // Calculate size in bytes
   size_t elemSize = 0;
@@ -38,7 +41,7 @@ AuroraTensor::AuroraTensor(const std::vector<int64_t> &shape, const std::string 
   data_ = std::make_unique<char[]>(sizeInBytes_);
 }
 
-AuroraTensor::AuroraTensor(const std::vector<int64_t> &shape, const std::string &dtype, void *data)
+mlir::aurora::runtime::AuroraTensor::AuroraTensor(const std::vector<int64_t> &shape, const std::string &dtype, void *data)
     : shape_(shape), dtype_(dtype) {
   // Calculate size in bytes (same as above)
   size_t elemSize = 0;
@@ -70,30 +73,30 @@ AuroraTensor::AuroraTensor(const std::vector<int64_t> &shape, const std::string 
   }
 }
 
-const std::vector<int64_t> &AuroraTensor::getShape() const {
+const std::vector<int64_t> &mlir::aurora::runtime::AuroraTensor::getShape() const {
   return shape_;
 }
 
-const std::string &AuroraTensor::getDType() const {
+const std::string &mlir::aurora::runtime::AuroraTensor::getDType() const {
   return dtype_;
 }
 
-void *AuroraTensor::getData() const {
+void *mlir::aurora::runtime::AuroraTensor::getData() const {
   return data_.get();
 }
 
-size_t AuroraTensor::getSizeInBytes() const {
+size_t mlir::aurora::runtime::AuroraTensor::getSizeInBytes() const {
   return sizeInBytes_;
 }
 
-void AuroraTensor::copyFrom(const void *srcData, size_t sizeInBytes) {
+void mlir::aurora::runtime::AuroraTensor::copyFrom(const void *srcData, size_t sizeInBytes) {
   if (sizeInBytes > sizeInBytes_) {
     throw std::runtime_error("Source data size exceeds tensor capacity");
   }
   std::memcpy(data_.get(), srcData, sizeInBytes);
 }
 
-void AuroraTensor::copyTo(void *dstData, size_t sizeInBytes) const {
+void mlir::aurora::runtime::AuroraTensor::copyTo(void *dstData, size_t sizeInBytes) const {
   if (sizeInBytes > sizeInBytes_) {
     throw std::runtime_error("Destination buffer size is too small");
   }
@@ -104,47 +107,47 @@ void AuroraTensor::copyTo(void *dstData, size_t sizeInBytes) const {
 // AuroraExecutionContext Implementation
 //===----------------------------------------------------------------------===//
 
-AuroraExecutionContext::AuroraExecutionContext()
+mlir::aurora::runtime::AuroraExecutionContext::AuroraExecutionContext()
     : device_("cpu"), profilingEnabled_(false) {}
 
-void *AuroraExecutionContext::allocate(size_t sizeInBytes) {
+void *mlir::aurora::runtime::AuroraExecutionContext::allocate(size_t sizeInBytes) {
   // Simple implementation using malloc
   // In practice, this would use device-specific allocation
   return std::malloc(sizeInBytes);
 }
 
-void AuroraExecutionContext::deallocate(void *ptr) {
+void mlir::aurora::runtime::AuroraExecutionContext::deallocate(void *ptr) {
   // Simple implementation using free
   // In practice, this would use device-specific deallocation
   std::free(ptr);
 }
 
-void AuroraExecutionContext::setDevice(const std::string &device) {
+void mlir::aurora::runtime::AuroraExecutionContext::setDevice(const std::string &device) {
   device_ = device;
 }
 
-const std::string &AuroraExecutionContext::getDevice() const {
+const std::string &mlir::aurora::runtime::AuroraExecutionContext::getDevice() const {
   return device_;
 }
 
-void AuroraExecutionContext::enableProfiling(bool enable) {
+void mlir::aurora::runtime::AuroraExecutionContext::enableProfiling(bool enable) {
   profilingEnabled_ = enable;
   if (enable) {
     profile_.clear();
   }
 }
 
-bool AuroraExecutionContext::isProfilingEnabled() const {
+bool mlir::aurora::runtime::AuroraExecutionContext::isProfilingEnabled() const {
   return profilingEnabled_;
 }
 
-void AuroraExecutionContext::addProfilePoint(const std::string &name, double timeMs) {
+void mlir::aurora::runtime::AuroraExecutionContext::addProfilePoint(const std::string &name, double timeMs) {
   if (profilingEnabled_) {
     profile_[name] = timeMs;
   }
 }
 
-std::unordered_map<std::string, double> AuroraExecutionContext::getProfile() const {
+std::unordered_map<std::string, double> mlir::aurora::runtime::AuroraExecutionContext::getProfile() const {
   return profile_;
 }
 
@@ -153,7 +156,7 @@ std::unordered_map<std::string, double> AuroraExecutionContext::getProfile() con
 //===----------------------------------------------------------------------===//
 
 // Private implementation (PIMPL pattern)
-class AuroraModel::Impl {
+class mlir::aurora::runtime::AuroraModel::Impl {
 public:
   Impl() = default;
   
@@ -193,9 +196,12 @@ public:
   }
 };
 
-AuroraModel::AuroraModel() : impl_(std::make_unique<Impl>()) {}
+mlir::aurora::runtime::AuroraModel::AuroraModel() : impl_(std::make_unique<Impl>()) {}
 
-std::unique_ptr<AuroraModel> AuroraModel::loadFromFile(const std::string &filename) {
+// Destructor definition here in the .cpp file where Impl is complete
+mlir::aurora::runtime::AuroraModel::~AuroraModel() = default;
+
+std::unique_ptr<mlir::aurora::runtime::AuroraModel> mlir::aurora::runtime::AuroraModel::loadFromFile(const std::string &filename) {
   auto model = std::unique_ptr<AuroraModel>(new AuroraModel());
   
   // In a real implementation, this would load the model from a file
@@ -212,7 +218,7 @@ std::unique_ptr<AuroraModel> AuroraModel::loadFromFile(const std::string &filena
   return model;
 }
 
-std::unique_ptr<AuroraModel> AuroraModel::loadFromMemory(const void *data, size_t sizeInBytes) {
+std::unique_ptr<mlir::aurora::runtime::AuroraModel> mlir::aurora::runtime::AuroraModel::loadFromMemory(const void *data, size_t sizeInBytes) {
   auto model = std::unique_ptr<AuroraModel>(new AuroraModel());
   
   // In a real implementation, this would parse the model from memory
@@ -229,23 +235,23 @@ std::unique_ptr<AuroraModel> AuroraModel::loadFromMemory(const void *data, size_
   return model;
 }
 
-size_t AuroraModel::getNumInputs() const {
+size_t mlir::aurora::runtime::AuroraModel::getNumInputs() const {
   return impl_->inputNames.size();
 }
 
-size_t AuroraModel::getNumOutputs() const {
+size_t mlir::aurora::runtime::AuroraModel::getNumOutputs() const {
   return impl_->outputNames.size();
 }
 
-std::vector<std::string> AuroraModel::getInputNames() const {
+std::vector<std::string> mlir::aurora::runtime::AuroraModel::getInputNames() const {
   return impl_->inputNames;
 }
 
-std::vector<std::string> AuroraModel::getOutputNames() const {
+std::vector<std::string> mlir::aurora::runtime::AuroraModel::getOutputNames() const {
   return impl_->outputNames;
 }
 
-std::vector<int64_t> AuroraModel::getInputShape(const std::string &name) const {
+std::vector<int64_t> mlir::aurora::runtime::AuroraModel::getInputShape(const std::string &name) const {
   auto it = impl_->inputShapes.find(name);
   if (it == impl_->inputShapes.end()) {
     throw std::runtime_error("Input not found: " + name);
@@ -253,7 +259,7 @@ std::vector<int64_t> AuroraModel::getInputShape(const std::string &name) const {
   return it->second;
 }
 
-std::vector<int64_t> AuroraModel::getOutputShape(const std::string &name) const {
+std::vector<int64_t> mlir::aurora::runtime::AuroraModel::getOutputShape(const std::string &name) const {
   auto it = impl_->outputShapes.find(name);
   if (it == impl_->outputShapes.end()) {
     throw std::runtime_error("Output not found: " + name);
@@ -261,7 +267,7 @@ std::vector<int64_t> AuroraModel::getOutputShape(const std::string &name) const 
   return it->second;
 }
 
-std::string AuroraModel::getInputDType(const std::string &name) const {
+std::string mlir::aurora::runtime::AuroraModel::getInputDType(const std::string &name) const {
   auto it = impl_->inputDTypes.find(name);
   if (it == impl_->inputDTypes.end()) {
     throw std::runtime_error("Input not found: " + name);
@@ -269,7 +275,7 @@ std::string AuroraModel::getInputDType(const std::string &name) const {
   return it->second;
 }
 
-std::string AuroraModel::getOutputDType(const std::string &name) const {
+std::string mlir::aurora::runtime::AuroraModel::getOutputDType(const std::string &name) const {
   auto it = impl_->outputDTypes.find(name);
   if (it == impl_->outputDTypes.end()) {
     throw std::runtime_error("Output not found: " + name);
@@ -277,7 +283,7 @@ std::string AuroraModel::getOutputDType(const std::string &name) const {
   return it->second;
 }
 
-void AuroraModel::execute(
+void mlir::aurora::runtime::AuroraModel::execute(
     const std::unordered_map<std::string, AuroraTensor*> &inputs,
     std::unordered_map<std::string, AuroraTensor*> &outputs,
     AuroraExecutionContext *context) {
@@ -299,7 +305,7 @@ void AuroraModel::execute(
   impl_->executeModel(inputs, outputs, context);
 }
 
-std::unordered_map<std::string, double> AuroraModel::benchmark(
+std::unordered_map<std::string, double> mlir::aurora::runtime::AuroraModel::benchmark(
     const std::unordered_map<std::string, AuroraTensor*> &inputs,
     std::unordered_map<std::string, AuroraTensor*> &outputs,
     int numRuns, 
@@ -336,3 +342,4 @@ std::unordered_map<std::string, double> AuroraModel::benchmark(
 
 } // namespace runtime
 } // namespace aurora
+} // namespace mlir

@@ -1,47 +1,52 @@
-#ifndef AURORA_RUNTIME_AURORA_RUNTIME_H
-#define AURORA_RUNTIME_AURORA_RUNTIME_H
+//===- AuroraRuntime.h - Aurora runtime declarations --------------*- C++ -*-===//
+//
+// This file contains the declarations for the Aurora runtime support.
+//
+//===----------------------------------------------------------------------===//
 
+#ifndef AURORA_RUNTIME_H
+#define AURORA_RUNTIME_H
+
+#include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 #include <unordered_map>
 
+namespace mlir {
 namespace aurora {
 namespace runtime {
 
-// Forward declarations
-class AuroraModel;
-class AuroraTensor;
-class AuroraExecutionContext;
-
-/**
- * AuroraTensor - Represents a multi-dimensional tensor in the Aurora runtime
- */
+// Tensor class for Aurora runtime
 class AuroraTensor {
 public:
+  // Create a new tensor with the given shape and data type
   AuroraTensor(const std::vector<int64_t> &shape, const std::string &dtype);
+  
+  // Create a tensor with existing data
   AuroraTensor(const std::vector<int64_t> &shape, const std::string &dtype, void *data);
   
-  // Getters
+  ~AuroraTensor();
+  
+  // Accessors
   const std::vector<int64_t> &getShape() const;
   const std::string &getDType() const;
   void *getData() const;
   size_t getSizeInBytes() const;
   
-  // Data transfer
+  // Data operations
   void copyFrom(const void *srcData, size_t sizeInBytes);
   void copyTo(void *dstData, size_t sizeInBytes) const;
-  
+
 private:
   std::vector<int64_t> shape_;
   std::string dtype_;
   std::unique_ptr<char[]> data_;
+  bool ownsData_;
   size_t sizeInBytes_;
 };
 
-/**
- * AuroraExecutionContext - Holds the execution context for a model
- */
+// Execution context for Aurora models
 class AuroraExecutionContext {
 public:
   AuroraExecutionContext();
@@ -66,18 +71,18 @@ private:
   std::unordered_map<std::string, double> profile_;
 };
 
-/**
- * AuroraModel - Represents a compiled Aurora model
- */
+// Aurora model class
 class AuroraModel {
 public:
-  // Constructor loads a compiled model from file
-  static std::unique_ptr<AuroraModel> loadFromFile(const std::string &filename);
+  AuroraModel();
+  // Need non-default destructor for the PIMPL pattern with forward-declared Impl
+  ~AuroraModel();
   
-  // Constructor from memory buffer (useful for JIT compilation)
+  // Model loading
+  static std::unique_ptr<AuroraModel> loadFromFile(const std::string &filename);
   static std::unique_ptr<AuroraModel> loadFromMemory(const void *data, size_t sizeInBytes);
   
-  // Get input/output information
+  // Model information
   size_t getNumInputs() const;
   size_t getNumOutputs() const;
   std::vector<std::string> getInputNames() const;
@@ -87,27 +92,43 @@ public:
   std::string getInputDType(const std::string &name) const;
   std::string getOutputDType(const std::string &name) const;
   
-  // Execute the model
-  void execute(const std::unordered_map<std::string, AuroraTensor*> &inputs,
-              std::unordered_map<std::string, AuroraTensor*> &outputs,
-              AuroraExecutionContext *context = nullptr);
+  // Model execution
+  void execute(
+      const std::unordered_map<std::string, AuroraTensor*> &inputs,
+      std::unordered_map<std::string, AuroraTensor*> &outputs,
+      AuroraExecutionContext *context = nullptr);
   
-  // Benchmark the model execution
+  // Benchmarking
   std::unordered_map<std::string, double> benchmark(
       const std::unordered_map<std::string, AuroraTensor*> &inputs,
       std::unordered_map<std::string, AuroraTensor*> &outputs,
-      int numRuns = 100, 
-      int warmupRuns = 10);
-      
-private:
-  AuroraModel();
+      int numRuns = 10, 
+      int warmupRuns = 3);
   
-  // Private implementation details
+private:
   class Impl;
+  std::unique_ptr<Impl> impl_;
+};
+
+// Main runtime API
+class AuroraRuntime {
+public:
+  AuroraRuntime();
+  ~AuroraRuntime();
+
+  // Initialize the runtime with the given model
+  bool initialize(const std::string &modelPath);
+
+  // Execute the model with the given inputs
+  bool execute(const std::vector<float> &inputs, std::vector<float> &outputs);
+
+private:
+  struct Impl;
   std::unique_ptr<Impl> impl_;
 };
 
 } // namespace runtime
 } // namespace aurora
+} // namespace mlir
 
-#endif // AURORA_RUNTIME_AURORA_RUNTIME_H
+#endif // AURORA_RUNTIME_H

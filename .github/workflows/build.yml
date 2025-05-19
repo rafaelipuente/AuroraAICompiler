@@ -1,0 +1,67 @@
+name: AuroraAICompiler CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake ninja-build python3-dev python3-pip
+        # Install LLVM 16
+        wget https://apt.llvm.org/llvm.sh
+        chmod +x llvm.sh
+        sudo ./llvm.sh 16
+        sudo apt-get install -y llvm-16 llvm-16-dev llvm-16-tools \
+                              libllvm16 libclang-16-dev clang-16 \
+                              mlir-16-tools libmlir-16-dev
+        # Create symlinks
+        sudo ln -sf /usr/bin/llvm-config-16 /usr/bin/llvm-config
+        # Install Python dependencies
+        pip3 install -U pip
+        pip3 install numpy onnx torch
+
+    - name: Configure CMake
+      run: |
+        mkdir -p build
+        cd build
+        cmake -G Ninja \
+          -DCMAKE_C_COMPILER=clang-16 \
+          -DCMAKE_CXX_COMPILER=clang++-16 \
+          -DLLVM_EXTERNAL_LIT=/usr/lib/llvm-16/bin/llvm-lit \
+          -DMLIR_DIR=/usr/lib/llvm-16/lib/cmake/mlir \
+          -DLLVM_DIR=/usr/lib/llvm-16/lib/cmake/llvm \
+          ..
+
+    - name: Build
+      run: |
+        cd build
+        ninja -j$(nproc)
+
+    - name: Run Tests
+      run: |
+        cd build
+        ninja check-aurora-dialect
+        ninja check-aurora-transforms
+        # Run unit tests if they exist
+        if [ -f ./bin/aurora-tests ]; then
+          ./bin/aurora-tests
+        fi
+        # Run integration tests if needed
+        if [ -d ../test/integration ]; then
+          python3 ../test/integration/run_tests.py
+        fi
+
+    - name: Check for Compiler Warnings
+      run: |
+        cd build
+        ninja -j$(nproc) 2>&1 | grep -i warning || true
