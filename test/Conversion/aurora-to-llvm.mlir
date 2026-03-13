@@ -2,13 +2,13 @@
 //
 // RUN: aurora-opt %s \
 // RUN:   --convert-aurora-to-linalg \
-// RUN:   --one-shot-bufferize="bufferize-function-boundaries=true allow-return-allocs-in-loops=true" \
+// RUN:   --one-shot-bufferize="bufferize-function-boundaries=true" \
 // RUN:   --convert-linalg-to-loops \
 // RUN:   --convert-scf-to-cf \
 // RUN:   --convert-index-to-llvm \
 // RUN:   --convert-arith-to-llvm \
 // RUN:   --convert-cf-to-llvm \
-// RUN:   --convert-memref-to-llvm \
+// RUN:   --finalize-memref-to-llvm \
 // RUN:   --convert-func-to-llvm \
 // RUN:   --reconcile-unrealized-casts \
 // RUN: | FileCheck %s

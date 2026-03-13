@@ -127,13 +127,13 @@ if $FUSE; then
 fi
 OPT_ARGS+=(
   "--convert-aurora-to-linalg"
-  "--one-shot-bufferize=bufferize-function-boundaries=true allow-return-allocs-in-loops=true"
+  "--one-shot-bufferize=bufferize-function-boundaries=true"
   "--convert-linalg-to-loops"
   "--convert-scf-to-cf"
   "--convert-index-to-llvm"
   "--convert-arith-to-llvm"
   "--convert-cf-to-llvm"
-  "--convert-memref-to-llvm"
+  "--finalize-memref-to-llvm"
   "--convert-func-to-llvm"
   "--reconcile-unrealized-casts"
 )

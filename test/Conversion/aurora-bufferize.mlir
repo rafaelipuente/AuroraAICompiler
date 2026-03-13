@@ -2,7 +2,7 @@
 //
 // RUN: aurora-opt %s \
 // RUN:   --convert-aurora-to-linalg \
-// RUN:   --one-shot-bufferize="bufferize-function-boundaries=true allow-return-allocs-in-loops=true" \
+// RUN:   --one-shot-bufferize="bufferize-function-boundaries=true" \
 // RUN: | FileCheck %s
 //
 // Verifies the Aurora -> Linalg -> bufferized-memref stage.
