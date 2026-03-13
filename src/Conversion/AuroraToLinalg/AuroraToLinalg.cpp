@@ -18,7 +18,6 @@
 #include "Aurora/Dialect/Aurora/AuroraDialect.h"
 #include "Aurora/Dialect/Aurora/AuroraOps.h"
 
-#include "llvm/Config/llvm-config.h"
 #include "mlir/Dialect/Arith/IR/Arith.h"
 #include "mlir/Dialect/Func/IR/FuncOps.h"
 #include "mlir/Dialect/Linalg/IR/Linalg.h"
@@ -30,13 +29,6 @@
 
 using namespace mlir;
 using namespace mlir::aurora;
-
-// arith.maxf was renamed to arith.maximumf in LLVM 17.
-#if LLVM_VERSION_MAJOR < 17
-using MaximumFOpTy = arith::MaxFOp;
-#else
-using MaximumFOpTy = arith::MaximumFOp;
-#endif
 
 namespace {
 
@@ -82,7 +74,7 @@ struct ReluLowering : public OpRewritePattern<ReluOp> {
         [&](OpBuilder &nested, Location nestedLoc, ValueRange args) {
           Value zero = nested.create<arith::ConstantOp>(
               nestedLoc, nested.getFloatAttr(resultTy.getElementType(), 0.0));
-          Value relu = nested.create<MaximumFOpTy>(nestedLoc, args[0], zero);
+          Value relu = nested.create<arith::MaxFOp>(nestedLoc, args[0], zero);
           nested.create<linalg::YieldOp>(nestedLoc, relu);
         });
 
