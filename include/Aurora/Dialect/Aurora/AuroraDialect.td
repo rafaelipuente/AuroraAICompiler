@@ -22,9 +22,6 @@ def Aurora_Dialect : Dialect {
     The Aurora dialect is designed for high-performance AI operations.
   }];
 
-  // Use the updated fold API to remove deprecation warnings
-  let useFoldAPI = kEmitFoldAdaptorFolder;
-  
   let useDefaultTypePrinterParser = 1;
   let useDefaultAttributePrinterParser = 1;
 }
