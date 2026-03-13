@@ -8,8 +8,14 @@ set(AURORA_TEST_DEPENDS
   aurora-opt
 )
 
+# Resolve the lit runner. Prefer the path passed in via -DLLVM_EXTERNAL_LIT
+# (set by the CI workflow), fall back to searching PATH.
+if(NOT LLVM_EXTERNAL_LIT)
+  find_program(LLVM_EXTERNAL_LIT NAMES lit llvm-lit REQUIRED)
+endif()
+
 add_custom_target(check-aurora
-  COMMAND ${Python_EXECUTABLE} -m lit
+  COMMAND ${LLVM_EXTERNAL_LIT}
     ${CMAKE_CURRENT_SOURCE_DIR}
     --config-prefix lit
     -sv

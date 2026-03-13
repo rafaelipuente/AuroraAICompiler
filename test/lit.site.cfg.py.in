@@ -1,5 +1,3 @@
-@LIT_SITE_CFG_IN_HEADER@
-
 config.aurora_tools_dir = "@CMAKE_BINARY_DIR@/bin"
 config.aurora_src_root = "@CMAKE_SOURCE_DIR@"
 config.aurora_obj_root = "@CMAKE_BINARY_DIR@"
