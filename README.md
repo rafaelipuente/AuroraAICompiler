@@ -80,9 +80,9 @@ Use `--mlir-print-ir-after-all` for step-by-step IR dumps. To go all the way to 
 | ConvRelu Fusion Pass | **Stub** | Pattern skeleton; no fused op defined yet |
 | `aurora-compile` (MLIR input) | **Working** | Parses `.mlir`, runs passes, emits IR, generates Mermaid diagrams |
 | Aurora -> Linalg lowering | **Working** | `--convert-aurora-to-linalg` lowers relu, add, matmul, bias_add, matmul_bias |
-| Bufferization (tensor -> memref) | **Working (LLVM 17+)** | `--one-shot-bufferize`; LLVM 16 needs `allow-return-allocs` instead |
-| Aurora -> LLVM dialect | **Working (LLVM 17+)** | Full 9-pass pipeline via `aurora-opt --pass-pipeline` |
-| Lit Tests | **Working** | 13 tests; 2 bufferize/LLVM-dialect tests require LLVM 17+ |
+| Bufferization (tensor -> memref) | **Working** | `--one-shot-bufferize` with function-boundary bufferization |
+| Aurora -> LLVM dialect | **Working** | Full 9-pass pipeline via `aurora-opt --pass-pipeline` |
+| Lit Tests | **Working** | 13 lit/FileCheck tests covering the full pipeline |
 | ONNX Loader (Python) | **Working** | Parses ONNX protobuf, builds graph representation |
 | ONNX -> Aurora IR emitter | **Broken** | Emits placeholder ops, not valid Aurora dialect |
 | C++ Runtime | **Stub** | Tensor/context structures exist; execution is fake |
@@ -148,9 +148,7 @@ Defined in [`include/Aurora/Dialect/Aurora/AuroraOps.td`](include/Aurora/Dialect
 ### Prerequisites
 
 - CMake 3.20+
-- LLVM/MLIR 16+ (built with `-DLLVM_ENABLE_PROJECTS=mlir`)
-  - **LLVM 16+**: Aurora dialect, fusion pass, Aurora → Linalg lowering, all corresponding lit tests
-  - **LLVM 17+ required** for: `--one-shot-bufferize="allow-return-allocs-in-loops=true"` and the full Aurora → LLVM dialect pipeline tests (`test/Conversion/aurora-bufferize.mlir`, `test/Conversion/aurora-to-llvm.mlir`). On LLVM 16, substitute `allow-return-allocs=true`.
+- LLVM/MLIR 17 (built with `-DLLVM_ENABLE_PROJECTS=mlir`). CI tests against LLVM 17.0.6 from apt.llvm.org. Older LLVM versions are untested and unsupported.
 - C++17 compiler
 - Python 3.8+ (optional, for ONNX loader and lit tests)
 
@@ -175,7 +173,7 @@ ninja
 ninja check-aurora
 ```
 
-This runs all lit/FileCheck tests: dialect roundtrip, verifier enforcement, fusion, lowering to Linalg, bufferization, and the full pipeline to LLVM dialect. Two tests (`aurora-bufferize.mlir`, `aurora-to-llvm.mlir`) require LLVM 17+ and will fail on LLVM 16 with "unknown option: allow-return-allocs-in-loops".
+This runs all 13 lit/FileCheck tests: dialect roundtrip, verifier enforcement, fusion, lowering to Linalg, bufferization, and the full pipeline to LLVM dialect.
 
 ---
 
@@ -207,12 +205,12 @@ aurora-opt examples/lower_to_linalg.mlir --convert-aurora-to-linalg
 aurora-opt examples/matmul_bias_fusion.mlir \
   --aurora-matmul-bias-fusion --convert-aurora-to-linalg
 
-# Bufferize: Linalg-on-tensors -> Linalg-on-memrefs (LLVM 17+)
+# Bufferize: Linalg-on-tensors -> Linalg-on-memrefs
 aurora-opt examples/lower_to_linalg.mlir \
   --convert-aurora-to-linalg \
   --one-shot-bufferize="bufferize-function-boundaries=true allow-return-allocs-in-loops=true"
 
-# Full pipeline to LLVM dialect (LLVM 17+)
+# Full pipeline to LLVM dialect
 aurora-opt examples/pipeline_to_llvm.mlir \
   --convert-aurora-to-linalg \
   --one-shot-bufferize="bufferize-function-boundaries=true allow-return-allocs-in-loops=true" \
@@ -235,7 +233,7 @@ aurora-opt --help
 
 ### aurora-to-obj.sh (object file wrapper)
 
-Chains `aurora-opt` → `mlir-translate` → `llc` to produce an object file from Aurora IR. Requires `mlir-translate` and `llc` from an LLVM 17+ installation.
+Chains `aurora-opt` → `mlir-translate` → `llc` to produce an object file from Aurora IR. Requires `mlir-translate` and `llc` from LLVM 17.
 
 ```bash
 # Full pipeline: Aurora IR -> object file
@@ -314,7 +312,7 @@ models/                  # Model generation scripts
 - **No lowering for `conv`, `layernorm`, `fused_attention`**: These ops remain in Aurora IR after `--convert-aurora-to-linalg`. The five core ops (relu, add, matmul, bias_add, matmul_bias) are fully lowered.
 - **`aurora-fusion` drops relu on conv→relu patterns**: The `--aurora-fusion` pass (`Fusion.cpp`) contains a placeholder `ConvReluFusionPattern` that replaces `conv → relu` with just `conv`, silently discarding the relu. This is a known placeholder; no `aurora.conv_relu` fused op exists yet. Do not run `--aurora-fusion` on IR that depends on relu correctness.
 - **Unit tests reference non-existent attributes**: `TestAuroraDialect.cpp` and `TestMatMulBiasFusion.cpp` use ConvOp and MatMulOp attributes that are not in the TableGen definitions.
-- **Bufferization/LLVM tests require LLVM 17+**: `test/Conversion/aurora-bufferize.mlir` and `test/Conversion/aurora-to-llvm.mlir` use `allow-return-allocs-in-loops` which was introduced in LLVM 17. On LLVM 16, substitute `allow-return-allocs=true`. These tests will fail on LLVM 16 with "unknown option".
+- **LLVM 16 is unsupported**: The project is developed and tested against LLVM 17. Bufferization options, test RUN lines, and the wrapper script all assume LLVM 17 semantics.
 - **Object files are not directly executable**: The wrapper (`scripts/aurora-to-obj.sh`) produces `.o` files whose functions call `malloc`/`free`. Linking into a runnable binary requires a C/C++ driver that sets up concrete tensor data and calls the generated functions.
 
 ---

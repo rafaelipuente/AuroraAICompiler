@@ -32,7 +32,7 @@ Demonstrates the full lowering path from Aurora dialect to **LLVM dialect** IR.
 aurora-opt examples/pipeline_to_llvm.mlir --convert-aurora-to-linalg
 ```
 
-### Step 2 — Bufferize: tensor → memref (LLVM 17+)
+### Step 2 — Bufferize: tensor → memref
 
 ```bash
 aurora-opt examples/pipeline_to_llvm.mlir \
@@ -40,9 +40,7 @@ aurora-opt examples/pipeline_to_llvm.mlir \
   --one-shot-bufferize="bufferize-function-boundaries=true allow-return-allocs-in-loops=true"
 ```
 
-On LLVM 16, use `allow-return-allocs=true` instead.
-
-### Step 3 — Full pipeline to LLVM dialect (LLVM 17+)
+### Step 3 — Full pipeline to LLVM dialect
 
 ```bash
 aurora-opt examples/pipeline_to_llvm.mlir \
@@ -106,7 +104,7 @@ scripts/aurora-to-obj.sh --aurora-opt build/bin/aurora-opt --fuse examples/matmu
 scripts/aurora-to-obj.sh --aurora-opt build/bin/aurora-opt --emit-llvm-ir examples/pipeline_to_llvm.mlir
 ```
 
-Requires `mlir-translate` and `llc` from LLVM 17+ in your PATH (or pass `--translate` / `--llc`).
+Requires `mlir-translate` and `llc` from LLVM 17 in your PATH (or pass `--translate` / `--llc`).
 
 ## What stops here
 

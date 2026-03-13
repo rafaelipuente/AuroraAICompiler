@@ -16,7 +16,7 @@
 //   aurora-opt examples/matmul_bias_fusion.mlir \
 //     --aurora-matmul-bias-fusion --convert-aurora-to-linalg
 //
-// STEP 3 - Full pipeline to LLVM dialect (requires LLVM 17+):
+// STEP 3 - Full pipeline to LLVM dialect (requires LLVM 17):
 //   aurora-opt examples/pipeline_to_llvm.mlir \
 //     --convert-aurora-to-linalg \
 //     --one-shot-bufferize="bufferize-function-boundaries=true \
@@ -30,7 +30,7 @@
 //     --convert-func-to-llvm \
 //     --reconcile-unrealized-casts
 //
-// On LLVM 16, replace allow-return-allocs-in-loops with allow-return-allocs.
+// LLVM 17 is the only supported version.
 //
 // STEP 3a - Same via pipeline string:
 //   aurora-opt examples/pipeline_to_llvm.mlir \

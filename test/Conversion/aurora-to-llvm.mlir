@@ -1,8 +1,4 @@
-// NOTE: This test requires LLVM 17+.
-//   - allow-return-allocs-in-loops was added in LLVM 17; on LLVM 16 use allow-return-allocs=true.
-//   - convert-index-to-llvm was added in LLVM 16 but its behaviour stabilised in LLVM 17.
-// If you see "unknown option 'allow-return-allocs-in-loops'" you are on LLVM 16 and must
-// run these passes manually with the LLVM 16 option names.
+// Requires LLVM 17 (the only supported version).
 //
 // RUN: aurora-opt %s \
 // RUN:   --convert-aurora-to-linalg \
@@ -17,7 +13,7 @@
 // RUN:   --reconcile-unrealized-casts \
 // RUN: | FileCheck %s
 //
-// End-to-end pipeline: Aurora dialect -> LLVM dialect (LLVM 17+).
+// End-to-end pipeline: Aurora dialect -> LLVM dialect.
 // After all passes:
 //   - No Aurora ops remain.
 //   - No Linalg structured ops remain.

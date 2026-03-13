@@ -1,14 +1,11 @@
-// NOTE: This test uses --one-shot-bufferize with the allow-return-allocs-in-loops
-// option, which was added in LLVM 17.  On LLVM 16, replace the option with:
-//   allow-return-allocs=true
-// If you see "unknown option 'allow-return-allocs-in-loops'", you are on LLVM 16.
+// Requires LLVM 17 (the only supported version).
 //
 // RUN: aurora-opt %s \
 // RUN:   --convert-aurora-to-linalg \
 // RUN:   --one-shot-bufferize="bufferize-function-boundaries=true allow-return-allocs-in-loops=true" \
 // RUN: | FileCheck %s
 //
-// Verifies the Aurora -> Linalg -> bufferized-memref stage (LLVM 17+).
+// Verifies the Aurora -> Linalg -> bufferized-memref stage.
 // After one-shot-bufferize with function-boundary bufferization:
 //   - Tensor arguments become memref arguments.
 //   - tensor.empty() becomes memref.alloc().

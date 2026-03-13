@@ -62,7 +62,7 @@ Registered via TableGen (`include/Aurora/Conversion/Passes.td`). Uses partial co
 --reconcile-unrealized-casts
 ```
 
-Requires LLVM 17+ for the `allow-return-allocs-in-loops` bufferization option (LLVM 16: use `allow-return-allocs`). Produces LLVM *dialect* IR -- not binary. The next step is `mlir-translate --mlir-to-llvmir` then `llc`.
+Requires LLVM 17 (the only supported version). Produces LLVM *dialect* IR -- not binary. The next step is `mlir-translate --mlir-to-llvmir` then `llc`.
 
 ### Lit/FileCheck Tests (`test/`)
 
@@ -73,10 +73,10 @@ MLIR-standard IR-level tests using `lit` and `FileCheck`. 13 `.mlir` tests in to
 - Fusion pass: `matmul-bias-fusion.mlir`, `matmul-bias-fusion-negative.mlir`
 - Lowering to Linalg: 5 tests in `test/Conversion/` (relu, add, matmul, bias_add, matmul_bias)
 - Integration: `fusion-then-lower.mlir` (fuse + lower with no aurora ops remaining)
-- Bufferization (LLVM 17+): `aurora-bufferize.mlir`
-- LLVM dialect (LLVM 17+): `aurora-to-llvm.mlir`
+- Bufferization: `aurora-bufferize.mlir`
+- LLVM dialect: `aurora-to-llvm.mlir`
 
-The 11 LLVM-16-compatible tests cover the core pipeline. The 2 bufferization/LLVM-dialect tests require LLVM 17+ and will fail on LLVM 16 with "unknown option: allow-return-allocs-in-loops".
+All 13 tests target LLVM 17, the only supported version.
 
 Run with `ninja check-aurora`.
 

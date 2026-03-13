@@ -10,7 +10,7 @@
 //   aurora-opt input.mlir --aurora-matmul-bias-fusion
 //   aurora-opt input.mlir --convert-aurora-to-linalg
 //
-//   # Full pipeline to LLVM dialect (LLVM 17+)
+//   # Full pipeline to LLVM dialect
 //   aurora-opt input.mlir \
 //     --convert-aurora-to-linalg \
 //     --one-shot-bufferize="bufferize-function-boundaries=true \

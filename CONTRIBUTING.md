@@ -19,7 +19,7 @@ Thank you for your interest in contributing to AuroraAICompiler. This document c
 ### Prerequisites
 
 - CMake 3.20+
-- LLVM/MLIR 16+ (built with `-DLLVM_ENABLE_PROJECTS=mlir`)
+- LLVM/MLIR 17 (built with `-DLLVM_ENABLE_PROJECTS=mlir`)
 - C++17 compatible compiler
 - Python 3.8+ (optional, for ONNX loader)
 
@@ -46,7 +46,7 @@ Run lit/FileCheck tests with:
 ninja check-aurora
 ```
 
-This runs dialect roundtrip, verifier, fusion, and lowering tests. Two tests (`aurora-bufferize.mlir`, `aurora-to-llvm.mlir`) require LLVM 17+; the rest work on LLVM 16+. C++ unit tests under `test/unit/` do not currently compile.
+This runs all 13 lit/FileCheck tests: dialect roundtrip, verifier, fusion, lowering, bufferization, and full LLVM dialect pipeline. C++ unit tests under `test/unit/` do not currently compile.
 
 ### Coding Style
 
