@@ -1,17 +1,14 @@
 import os
 import lit.formats
-import lit.util
 
 config.name = "Aurora"
-config.test_format = lit.formats.ShTest(not llvm_config.use_lit_shell)
+config.test_format = lit.formats.ShTest(True)
 config.suffixes = [".mlir"]
 config.test_source_root = os.path.dirname(__file__)
 config.test_exec_root = os.path.join(config.aurora_obj_root, "test")
 
-llvm_config.with_system_environment(["HOME", "INCLUDE", "LIB", "TMP", "TEMP"])
-
-llvm_config.use_default_substitutions()
-
-tool_dirs = [config.aurora_tools_dir, config.llvm_tools_dir]
-tools = ["aurora-opt", "FileCheck", "not"]
-llvm_config.add_tool_substitutions(tools, tool_dirs)
+# Minimal standalone lit setup: prepend tool directories to PATH so RUN lines
+# can invoke aurora-opt, FileCheck, and not directly.
+path_entries = [config.aurora_tools_dir, config.llvm_tools_dir]
+existing_path = config.environment.get("PATH", "")
+config.environment["PATH"] = os.pathsep.join(path_entries + [existing_path])
