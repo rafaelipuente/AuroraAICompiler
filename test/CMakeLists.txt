@@ -15,11 +15,11 @@ if(NOT LLVM_EXTERNAL_LIT)
 endif()
 
 add_custom_target(check-aurora
+  # Run lit from the binary test dir so it picks up lit.site.cfg.py first.
   COMMAND ${LLVM_EXTERNAL_LIT}
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
     --config-prefix lit
     -sv
-    --param aurora_site_config=${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg.py
   DEPENDS ${AURORA_TEST_DEPENDS}
   COMMENT "Running Aurora lit tests"
   USES_TERMINAL
