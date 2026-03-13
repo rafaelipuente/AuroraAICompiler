@@ -1,5 +1,5 @@
-// This MLIR file demonstrates the result after our MatMulBias fusion pass is applied
-// The separate matmul and add operations have been fused into a single matmul_bias operation
+// Demonstrates the result after the MatMulBias fusion pass:
+// matmul + bias_add have been fused into a single matmul_bias operation.
 
 module {
   func.func @matmul_bias_pattern(%arg0: tensor<4x8xf32>, %arg1: tensor<8x16xf32>, %arg2: tensor<16xf32>) -> tensor<4x16xf32> {

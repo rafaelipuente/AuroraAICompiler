@@ -50,7 +50,7 @@ static LogicalResult applyMatMulBiasFusion(ModuleOp module) {
   module.walk([&](Operation *op) {
     // In a real implementation, we would look for a pattern of:
     // 1. %0 = aurora.matmul(%a, %b)
-    // 2. %1 = aurora.add(%0, %c)
+    // 2. %1 = aurora.bias_add(%0, %c)
     // And fuse them into:
     // %0 = aurora.matmul_bias(%a, %b, %c)
     

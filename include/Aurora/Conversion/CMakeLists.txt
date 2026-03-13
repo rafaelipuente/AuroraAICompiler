@@ -1,1 +1,3 @@
-add_subdirectory(AuroraToLLVM)
+set(LLVM_TARGET_DEFINITIONS Passes.td)
+mlir_tablegen(Passes.h.inc -gen-pass-decls -name AuroraConversion)
+add_public_tablegen_target(AuroraConversionPassIncGen)

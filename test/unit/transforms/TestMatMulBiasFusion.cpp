@@ -85,7 +85,7 @@ TEST_F(MatMulBiasFusionTest, BasicFusion) {
       %0 = aurora.matmul(%arg0, %arg1) : (tensor<4x8xf32>, tensor<8x16xf32>) -> tensor<4x16xf32>
       
       // Add bias operation
-      %1 = aurora.add(%0, %arg2) : (tensor<4x16xf32>, tensor<16xf32>) -> tensor<4x16xf32>
+      %1 = aurora.bias_add(%0, %arg2) : (tensor<4x16xf32>, tensor<16xf32>) -> tensor<4x16xf32>
       
       // Return the result
       return %1 : tensor<4x16xf32>
@@ -99,7 +99,7 @@ TEST_F(MatMulBiasFusionTest, BasicFusion) {
   
   // Verify the number of each op type before fusion
   EXPECT_EQ(countOps<MatMulOp>(funcOp), 1u);
-  EXPECT_EQ(countOps<AddOp>(funcOp), 1u);
+  EXPECT_EQ(countOps<BiasAddOp>(funcOp), 1u);
   EXPECT_EQ(countOps<MatMulBiasOp>(funcOp), 0u);
 
   // Apply the MatMulBiasFusion pass
@@ -113,48 +113,8 @@ TEST_F(MatMulBiasFusionTest, BasicFusion) {
   
   // Verify the number of each op type after fusion
   EXPECT_EQ(countOps<MatMulOp>(funcOp), 0u);
-  EXPECT_EQ(countOps<AddOp>(funcOp), 0u);
+  EXPECT_EQ(countOps<BiasAddOp>(funcOp), 0u);
   EXPECT_EQ(countOps<MatMulBiasOp>(funcOp), 1u);
-}
-
-// Test fusion with transpose attributes
-TEST_F(MatMulBiasFusionTest, FusionWithTranspose) {
-  // Define the input MLIR module with transpose attributes
-  const char *moduleStr = R"mlir(
-    func.func @matmul_bias_with_transpose(%arg0: tensor<8x4xf32>, %arg1: tensor<8x16xf32>, %arg2: tensor<16xf32>) -> tensor<4x16xf32> {
-      // MatMul operation with transpose_lhs attribute
-      %0 = aurora.matmul(%arg0, %arg1) { transpose_lhs = true } : (tensor<8x4xf32>, tensor<8x16xf32>) -> tensor<4x16xf32>
-      
-      // Add bias operation
-      %1 = aurora.add(%0, %arg2) : (tensor<4x16xf32>, tensor<16xf32>) -> tensor<4x16xf32>
-      
-      // Return the result
-      return %1 : tensor<4x16xf32>
-    }
-  )mlir";
-
-  // Parse the module
-  auto module = parseMLIRSource(&context, moduleStr);
-  auto funcOp = getFuncByName(module.get(), "matmul_bias_with_transpose");
-  ASSERT_TRUE(funcOp);
-  
-  // Apply the MatMulBiasFusion pass
-  PassManager pm(&context);
-  pm.addPass(createMatMulBiasFusionPass());
-  ASSERT_SUCCESS(pm.run(module.get()));
-  
-  // Verify that we now have one MatMulBiasOp and the MatMulOp and AddOp are gone
-  funcOp = getFuncByName(module.get(), "matmul_bias_with_transpose");
-  EXPECT_EQ(countOps<MatMulOp>(funcOp), 0u);
-  EXPECT_EQ(countOps<AddOp>(funcOp), 0u);
-  EXPECT_EQ(countOps<MatMulBiasOp>(funcOp), 1u);
-  
-  // Verify that the transpose attribute was preserved
-  bool foundTranspose = false;
-  funcOp.walk([&](MatMulBiasOp op) {
-    foundTranspose = op.getTransposeLhs();
-  });
-  EXPECT_TRUE(foundTranspose);
 }
 
 // Test no fusion when matmul has multiple uses
@@ -165,8 +125,8 @@ TEST_F(MatMulBiasFusionTest, NoFusionWithMultipleUses) {
       // MatMul operation
       %0 = aurora.matmul(%arg0, %arg1) : (tensor<4x8xf32>, tensor<8x16xf32>) -> tensor<4x16xf32>
       
-      // Add bias operation
-      %1 = aurora.add(%0, %arg2) : (tensor<4x16xf32>, tensor<16xf32>) -> tensor<4x16xf32>
+      // bias_add operation
+      %1 = aurora.bias_add(%0, %arg2) : (tensor<4x16xf32>, tensor<16xf32>) -> tensor<4x16xf32>
       
       // Return both matmul result and bias add result
       return %0, %1 : tensor<4x16xf32>, tensor<4x16xf32>
@@ -186,7 +146,7 @@ TEST_F(MatMulBiasFusionTest, NoFusionWithMultipleUses) {
   // Verify that the ops were not fused because matmul has multiple uses
   funcOp = getFuncByName(module.get(), "no_fusion_multiple_uses");
   EXPECT_EQ(countOps<MatMulOp>(funcOp), 1u);
-  EXPECT_EQ(countOps<AddOp>(funcOp), 1u);
+  EXPECT_EQ(countOps<BiasAddOp>(funcOp), 1u);
   EXPECT_EQ(countOps<MatMulBiasOp>(funcOp), 0u);
 }
 

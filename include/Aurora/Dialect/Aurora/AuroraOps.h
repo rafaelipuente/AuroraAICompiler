@@ -20,6 +20,7 @@ namespace aurora {
 
 // Forward declarations for all operations
 class AddOp;
+class BiasAddOp;
 class ConvOp;
 class FusedAttentionOp;
 class LayerNormOp;

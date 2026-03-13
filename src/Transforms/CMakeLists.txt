@@ -4,11 +4,13 @@ add_mlir_library(AuroraTransforms
 
   DEPENDS
   AuroraOpsIncGen
+  AuroraTransformsPassIncGen
 
   LINK_LIBS PUBLIC
   MLIRIR
   MLIRPass
   MLIRTransforms
+  MLIRFuncDialect
   AuroraDialect
 )
 

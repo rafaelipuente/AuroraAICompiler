@@ -1,21 +1,26 @@
-# Example Models
+# Models
 
-This directory contains example AI models for testing the AuroraAICompiler.
+Test model files and generation scripts for AuroraAICompiler.
 
-## Available Models
+## Contents
 
-- `resnet50.onnx`: ResNet-50 image classification model (placeholder)
+- `matmul_test.onnx` -- Tiny MatMul ONNX model (320 bytes). Used for import testing.
+- `create_test_model.py` -- Generates ONNX test models with MatMul, Add, and Relu ops.
+- `create_simple_model.py` -- Generates a minimal MatMul ONNX model.
+- `simple_benchmark.py` -- Benchmark script (requires working compiler pipeline; not functional yet).
+- `standalone_test.py` -- Standalone test runner (requires working compiler pipeline; not functional yet).
 
-## Downloading Models
-
-Since ONNX model files can be large, they are not included directly in the repository.
-You can download them using the provided scripts:
+## Generating Models
 
 ```bash
-# Download ResNet-50 model
-python ../scripts/download_models.py resnet50
+cd models
+python create_simple_model.py
+python create_test_model.py
 ```
 
-## Model Sources
+Both scripts require `onnx` and `numpy` to be installed.
 
-- ResNet-50: https://github.com/onnx/models/tree/main/vision/classification/resnet
+## Note
+
+Large pretrained models (ResNet, MobileNet, etc.) are not included in this repository.
+Use `scripts/download_models.py` to fetch them if needed.

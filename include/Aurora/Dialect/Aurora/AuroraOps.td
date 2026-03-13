@@ -66,6 +66,36 @@ def Aurora_AddOp : Aurora_Op<"add", [
   let results = (outs AnyTensor:$result);
 }
 
+def Aurora_BiasAddOp : Aurora_Op<"bias_add", [
+    Pure
+  ]> {
+  let summary = "Add a 1-D bias vector to an N-D tensor along its last dimension";
+  let description = [{
+    Broadcasts a rank-1 bias vector across the last dimension of the input
+    tensor and adds element-wise. This is the standard bias-addition pattern
+    in neural networks (e.g. after matmul or convolution).
+
+    Constraints:
+    - `bias` must be rank-1.
+    - `bias` dimension must equal the last dimension of `input`.
+    - Result type must equal the input type.
+
+    Example:
+    ```mlir
+    %r = aurora.bias_add(%x, %b) : (tensor<4x16xf32>, tensor<16xf32>) -> tensor<4x16xf32>
+    ```
+  }];
+
+  let arguments = (ins
+    AnyTensor:$input,
+    AnyTensor:$bias
+  );
+
+  let results = (outs AnyTensor:$result);
+
+  let hasVerifier = 1;
+}
+
 def Aurora_ReluOp : Aurora_Op<"relu", [
     Pure,
     SameOperandsAndResultType

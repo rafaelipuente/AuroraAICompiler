@@ -39,8 +39,7 @@
 // Aurora headers
 #include "Aurora/Dialect/Aurora/AuroraDialect.h"
 #include "Aurora/Dialect/Aurora/AuroraOps.h"
-#include "Aurora/Transforms/Fusion.h"
-#include "Aurora/Transforms/MatMulBiasFusion.h"
+#include "Aurora/Transforms/Passes.h"
 
 // Target backend framework
 #include "aurora-compile-backend.h"
@@ -405,7 +404,10 @@ public:
 int main(int argc, char **argv) {
   // Initialize LLVM
   InitLLVM y(argc, argv);
-  
+
+  // Register Aurora passes so the PassManager can find them by name.
+  aurora::registerAuroraPasses();
+
   // Register command line options
   cl::ParseCommandLineOptions(argc, argv, "Aurora AI Compiler\n");
   
