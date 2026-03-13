@@ -24,7 +24,7 @@ jobs:
           libclang-17-dev lld-17
 
     - name: Install lit
-      run: pip3 install lit
+      run: pip3 install --break-system-packages lit
 
     - name: Configure
       run: |
@@ -34,11 +34,11 @@ jobs:
           -DCMAKE_CXX_COMPILER=clang++-17 \
           -DMLIR_DIR=/usr/lib/llvm-17/lib/cmake/mlir \
           -DLLVM_DIR=/usr/lib/llvm-17/lib/cmake/llvm \
-          -DLLVM_EXTERNAL_LIT=$(which lit) \
+          -DLLVM_EXTERNAL_LIT=$(python3 -c "import shutil; print(shutil.which('lit') or '/usr/local/bin/lit')") \
           ..
 
-    - name: Build
-      run: ninja -C build -j$(nproc)
+    - name: Build aurora-opt
+      run: ninja -C build -j$(nproc) aurora-opt
 
     - name: Run lit tests
       run: ninja -C build check-aurora
