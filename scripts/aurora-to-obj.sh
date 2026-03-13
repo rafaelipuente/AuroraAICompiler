@@ -127,6 +127,7 @@ if $FUSE; then
 fi
 OPT_ARGS+=(
   "--convert-aurora-to-linalg"
+  "--empty-tensor-to-alloc-tensor"
   "--one-shot-bufferize=bufferize-function-boundaries=true allow-return-allocs=true"
   "--convert-linalg-to-loops"
   "--convert-scf-to-cf"
