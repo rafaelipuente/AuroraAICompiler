@@ -2,7 +2,7 @@
 //
 // RUN: aurora-opt %s \
 // RUN:   --convert-aurora-to-linalg \
-// RUN:   --one-shot-bufferize="bufferize-function-boundaries=true" \
+// RUN:   --one-shot-bufferize="bufferize-function-boundaries=true allow-return-allocs=true" \
 // RUN:   --convert-linalg-to-loops \
 // RUN:   --convert-scf-to-cf \
 // RUN:   --convert-index-to-llvm \
