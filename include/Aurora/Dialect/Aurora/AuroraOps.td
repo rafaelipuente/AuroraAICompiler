@@ -61,6 +61,7 @@ def Aurora_AddOp : Aurora_Op<"add", [
   );
   
   let results = (outs AnyTensor:$result);
+  let assemblyFormat = "`(` $lhs `,` $rhs `)` attr-dict `:` functional-type(operands, results)";
 }
 
 def Aurora_BiasAddOp : Aurora_Op<"bias_add", [
@@ -91,6 +92,7 @@ def Aurora_BiasAddOp : Aurora_Op<"bias_add", [
   let results = (outs AnyTensor:$result);
 
   let hasVerifier = 1;
+  let assemblyFormat = "`(` $input `,` $bias `)` attr-dict `:` functional-type(operands, results)";
 }
 
 def Aurora_ReluOp : Aurora_Op<"relu", [
@@ -109,6 +111,7 @@ def Aurora_ReluOp : Aurora_Op<"relu", [
   
   let arguments = (ins AnyTensor:$input);
   let results = (outs AnyTensor:$result);
+  let assemblyFormat = "`(` $input `)` attr-dict `:` functional-type(operands, results)";
 }
 
 def Aurora_MatMulOp : Aurora_Op<"matmul", [
@@ -130,6 +133,7 @@ def Aurora_MatMulOp : Aurora_Op<"matmul", [
   );
   
   let results = (outs AnyTensor:$result);
+  let assemblyFormat = "`(` $lhs `,` $rhs `)` attr-dict `:` functional-type(operands, results)";
 }
 
 def Aurora_MatMulBiasOp : Aurora_Op<"matmul_bias", [
@@ -152,6 +156,7 @@ def Aurora_MatMulBiasOp : Aurora_Op<"matmul_bias", [
   );
   
   let results = (outs AnyTensor:$result);
+  let assemblyFormat = "`(` $lhs `,` $rhs `,` $bias `)` attr-dict `:` functional-type(operands, results)";
 }
 
 def Aurora_ConvOp : Aurora_Op<"conv", [
@@ -173,6 +178,7 @@ def Aurora_ConvOp : Aurora_Op<"conv", [
   );
   
   let results = (outs AnyTensor:$result);
+  let assemblyFormat = "`(` $input `,` $filter `)` attr-dict `:` functional-type(operands, results)";
 }
 
 def Aurora_LayerNormOp : Aurora_Op<"layernorm", [
@@ -195,6 +201,7 @@ def Aurora_LayerNormOp : Aurora_Op<"layernorm", [
   );
   
   let results = (outs AnyTensor:$result);
+  let assemblyFormat = "`(` $input `,` $gamma `,` $beta `)` attr-dict `:` functional-type(operands, results)";
 }
 
 def Aurora_FusedAttentionOp : Aurora_Op<"fused_attention", [
@@ -217,6 +224,7 @@ def Aurora_FusedAttentionOp : Aurora_Op<"fused_attention", [
   );
   
   let results = (outs AnyTensor:$result);
+  let assemblyFormat = "`(` $query `,` $key `,` $value `)` attr-dict `:` functional-type(operands, results)";
 }
 
 #endif // AURORA_OPS
